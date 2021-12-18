@@ -1,0 +1,2 @@
+#Entity_Name,movement_range,team(ally || enemy), starting position in [x,y]
+Player_1, 5, ally, 
