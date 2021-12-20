@@ -1,2 +1,7 @@
-#Entity_Name,movement_range,team(ally || enemy), starting position in [x,y]
-Player_1, 5, ally, 
+#Entity_Name, movement_range, team(ally || enemy), starting position[x,y]
+#Example:
+#Player_1,50,ally,[1,1]
+Player_1,5,ally,[1,1]
+Player_2,5,ally,[1,2]
+Player_3,5,ally,[2,1]
+Player_4,5,ally,[2,2]
