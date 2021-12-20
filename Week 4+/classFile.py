@@ -3,7 +3,7 @@
 #contains all non-sentient being on the game board
 class entity:
     #player id for if there is multiple players
-    id = 0
+    id = -1
 
     def __init__(self, name, movement, team, location):
         entity.id += 1;
@@ -18,6 +18,7 @@ class entity:
         else:
             self.color = "black"
         self.location = location
+        self.selected = 0 # 0 means not selected, 1 means selected
     
     def getID(self):
         #print(f"ID: {self.id}")
@@ -51,12 +52,13 @@ class tile:
         tile.id += 1
         self.id = tile.id
         self.coords = []
-        self.entity = entity
-        self.color = tile.getEntityColor(self)
+        self.entity = None
+        self.color = "gray"
+        
     
     def getEntityColor(self):
         try:
-            if(self.entity.getColor()==None):
+            if(self.entity==None):
                 return "gray"
             else:
                 return self.entity.getColor()
@@ -65,6 +67,12 @@ class tile:
             print("Tile color recovery failure, defaulting")
             return "gray"
     
+    def update(self):
+        if(self.entity==None):
+            self.color = "gray"
+        else:
+            self.color =  self.entity.getColor()
+
     def getID(self):
         #print(f"ID: {self.id}")
         return self.id
