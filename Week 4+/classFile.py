@@ -6,11 +6,13 @@ class entity:
     id = -1
 
     def __init__(self, name, movement, team, location):
+        #Defining chacteristics
         entity.id += 1;
         self.id = entity.id
         self.name = name
         self.movement = movement
         self.team = team
+        #color
         if(team == "enemy"):
             self.color = "red"
         if(team == "ally"):
@@ -18,7 +20,21 @@ class entity:
         else:
             self.color = "black"
         self.location = location
+
+        #Manipulated Values
         self.selected = 0 # 0 means not selected, 1 means selected
+        self.rM = movement #remaining movement available to player
+        self.hp = 20
+        self.actionCount = 1
+        #dice system to be implemented
+        """"
+        self.attackDice = 1 
+        self.defenceDice = 1
+        self.Mind = 1 
+        self.body = 1
+        """
+
+
     
     def getID(self):
         #print(f"ID: {self.id}")
