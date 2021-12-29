@@ -10,6 +10,7 @@ turn_value = 0
 player_select = []
 Mode = 0
 maxId = 0
+maxWallId = 0
 
 """
 Start of the tkinter loop
@@ -25,50 +26,62 @@ y1=5
 y2=35
 #------------------Functions---------------#
 # Takes entity(NOT TILE), checks if the creatures turn is over, and increments the turn value if so.    
-def Turn_Manager(creature):
-    global turn_value
-    global dead_entity_list
-    global maxId
-    #print(f"Turn manager ac {creature.actionCount}")
-    if(creature.actionCount == 0 and creature.rM == 0): 
-        turn_value += 1
-        #skips dead characters turns
-        for creature in dead_entity_list:
-            if (entity.id == turn_value):
-                turn_value += 1
-        #Loops the id values
-        if turn_value > maxId :
-            turn_value = 0
-            print(f"maxId reached {maxId}")
 
-def Move(destination):
-    if(len(player_select) == 0):
-        print("Select a player first")
-    else:
-        destination.entity = player_select[0].entity
-        destination.entity.selected = 0
-        player_select[0].entity = None
-        update()
-        player_select.clear()
+def createWalls(tile):
+    holderx1 = tile.coords[0]
+    holderx2 = tile.coords[2]
+    holdery1 = tile.coords[1]
+    holdery2 = tile.coords[3]
+    holderWalls = tile.walls
+    if tile.walls == 1: #top
+        tile.coords[3] -= 29
+        tile.coords[1] += 1
+        painting.create_line(tile.coords,fill="orange")
+        print(f"Tile Walls within CreateWalls {tile.walls} Coord: {tile.coords}")
+      
+    elif tile.walls == 2: #right
+        tile.coords[0] += 29
+        tile.coords[2] -= 1
+        painting.create_line(tile.coords,fill="orange")
+        print(f"Tile Walls within CreateWalls {tile.walls} Coord: {tile.coords}")
 
+        
+    elif tile.walls == 3: #bottom
+        tile.coords[1] += 29
+        tile.coords[3] -= 1
+        painting.create_line(tile.coords,fill="orange")
+        print(f"Tile Walls within CreateWalls {tile.walls} Coord: {tile.coords}")
+ 
+    elif tile.walls == 4: #left
+        tile.coords[2] -= 29
+        tile.coords[0] += 1
+        painting.create_line(tile.coords,fill="orange")
+        print(f"Tile Walls within CreateWalls {tile.walls} Coord: {tile.coords}")
 
-#Takes target tile, uses player select for attacker
-def Attack(obj):
-    if(obj.entity.hp > 5):
-        obj.entity.hp -= 5
-        player_select[0].entity.actionCount -= 1
-    #kills target situation
-    else:
-        dead_entity_list.append(obj.entity)
-        player_select[0].entity.actionCount -= 1
-        obj.entity = player_select[0].entity
-        player_select[0].entity = None
-        player_select.clear()
-        player_select.append(obj)
-    
+    elif tile.walls == 5: #top right
+        tile.walls = 1
+        createWalls(tile)
+        tile.walls = 2
+        createWalls(tile)
+    elif tile.walls == 6:
+        tile.walls = 2
+        createWalls(tile)
+        tile.walls = 3
+        createWalls(tile)
+    elif tile.walls == 7:
+        tile.walls = 3
+        createWalls(tile)
+        tile.walls = 4
+        createWalls(tile)
+    elif tile.walls == 8:
+        tile.walls = 4
+        createWalls(tile)
+        tile.walls = 1
+        createWalls(tile)
+    #restore values
+    tile.coords = [holderx1,holdery1,holderx2,holdery2]
+    tile.walls = holderWalls
 
-
-    
 def Mode_Select():
     global Mode 
     if Mode == 1:
@@ -76,54 +89,21 @@ def Mode_Select():
     else:
         Mode = 1
     print(f"Mode change: {Mode}")
-    update()
-    
-    #if(num == 0 ):
 
-def EndTurn():
-    if(len(player_select) == 1):
-        player_select[0].entity.rM = 0 
-        player_select[0].entity.actionCount = 0
-        Turn_Manager(player_select[0].entity)
-        player_select[0].entity.selected = 0
-        update()
-        player_select.clear()
-        
-        
-    else:
-        print("Select character first")
+def SaveBoard():
+    print("holder")
+    FolderName = input("give me a name for the file:\n")
+    newFile = open(FolderName, W)
+    for tile in board:
+        #newFile.writelines(str(tile.walls)) 
+        strholder = tile.outputInfo()
+        newFile.write(strholder)
 
-def Move_Range(player_tile,obj):
-    MathID = player_tile.id
-    counter = 0
-    if(abs(player_tile.id - obj.id) > 25 ):
-        if(obj.id > player_tile.id):
-            #MathID = player_tile.id
-            while(abs(MathID - obj.id)>25):
-                MathID += 26
-                counter += 1
-        else:
-            #MathID = player_tile.id
-            while(abs(MathID - obj.id)>25):
-                MathID -= 26
-                counter += 1
-    counter = abs(MathID - obj.id) + counter
-    print(f"distance counter is : {counter}")
-    if(counter > player_tile.entity.rM):
-
-        return 1
-    else:
-        player_tile.entity.rM -= counter
-        print(f"{player_tile.entity.name} Rm : {player_tile.entity.rM}")
-        if(player_tile.entity.rM == 0):
-            Turn_Manager(player_tile.entity)
-        return 0
 
 
 #Click manager on board
 def TileSelect(e):
     #vars
-    global player_select
     x = e.x
     y = e.y
     tileSelected = None
@@ -131,7 +111,6 @@ def TileSelect(e):
     # prints clicked coordinates and len of player list
     print(x,y)
     print(e)
-    print(f"click! Player_Select_Length: {len(player_select)}, Turn Value: {turn_value}")
 
     #finds what and if a tile was clicked
     for obj in board:
@@ -143,60 +122,17 @@ def TileSelect(e):
     #if (e):
      #   print("clicked off board")
       #  return
-            
+    if(Mode == 0):
+        obj.walls += 1
+        if(obj.walls > 8):
+            obj.walls = 0      
     tileSelected.printInfo()#tells me about the tile
 
     #_________________________________________Click Scenarios Below_____________________________________________#
-
-    #Clicked tile has entity
-    if(obj.entity != None): #entity on tile
-        #no player selected
-        if(obj.entity.id == turn_value and len(player_select) == 0): 
-            print(f"{obj.entity.name} selected.")
-            obj.entity.selected = 1
-            player_select.append(obj)
-        #player deselect
-        elif(len(player_select) == 1 and obj.entity.id == player_select[0].entity.id):
-            if(obj.entity.id == player_select[0].entity.id):
-                obj.entity.selected = 0
-                player_select.clear()
-        #player attack
-        elif(len(player_select) == 1 and obj.entity.team != player_select[0].entity.team and Mode == 1 and Move_Range(player_select[0], obj)):
-            print(f"Attack event occurred. {player_select[0].entity.name} versus {obj.entity.name}")
-            Attack(obj) 
-        elif(Mode == 0 and len(player_select) == 1 ):#Moving onto occupied tile
-            print(f"Entity present, cannot move there")
-
-                
-    #player selected ready to move 
-   
-   #Move Scenarios--------------------------------------------------------------------------------------
-    elif(Mode == 0 and obj.entity == None and len(player_select) == 1):#Normal Move scenario #3
-        if(Move_Range(player_select[0],obj) == 0):
-            obj.entity = player_select[0].entity
-            obj.entity.selected = 0
-            board[player_select[0].id].entity = None
-            player_select.clear()
-        else:
-            print("Out of movement range")
-           
-        
     
-
-    elif(Mode == 1 and len(player_select) == 1 and obj.entity == None):#Attack nothing 
-        print(f"That tile is empty, cannot attack there")
-
-    else:
-        print("Unknown Scenario")
-        print(f"{obj.id} obj id")
-
-
-    #Dungeon Master Monster Move and Attack Scenarios
     
     print(f"End of click event")
     print(f"______________________________________________________________________________")
-    if(len(player_select)==1):
-        Turn_Manager(player_select[0].entity)
     update()
 
 #click bind
@@ -204,6 +140,7 @@ def TileSelect(e):
 painting.bind("<Button 1>",TileSelect)
 
 def update():
+    global maxWallId
     for board_square in board:
         board_square.update()
         if(board_square.entity != None):
@@ -213,6 +150,10 @@ def update():
                     painting.create_rectangle(board_square.coords[0],board_square.coords[1],board_square.coords[2],board_square.coords[3],fill=board_square.color)
         else:
             painting.create_rectangle(board_square.coords[0],board_square.coords[1],board_square.coords[2],board_square.coords[3],fill=board_square.color)
+        createWalls(board_square)
+        if board_square.walls > maxWallId:
+            maxWallId = board_square.walls
+         
 
 #load entities
 file_object = open("scenario_0.txt")
@@ -319,10 +260,12 @@ for j in range(0,19):
                 #print(f"Conditional: {(creature.location[0] - 1)}, {(creature.location[1] - 1)}")
                 board_square.entity = creature
                 board_square.color = board_square.getEntityColor()
+                createWalls(board_square)
             else:
                 pass
         else:
-            painting.create_rectangle(x1,y1,x2,y2,fill=board_square.color) 
+            painting.create_rectangle(x1,y1,x2,y2,fill=board_square.color)
+            createWalls(board_square) 
         
         
        
@@ -336,21 +279,21 @@ for j in range(0,19):
     x2 = 35
 
 
-#---------------------------------- Button stuff------------------------------------- #
-ModeButton = Button(root, text="Move", command=Mode_Select,width=5,height=2,borderwidth = 3,bg = "#a9f49f")    
+#button stuff
+ModeButton = Button(root, text="Create\nWalls", command=Mode_Select,width=5,height=2,borderwidth = 3,bg = "#a9f49f")    
 ModeButton.pack(anchor= SW)
-EndTurnButton = Button(root, text="End \nTurn", command=EndTurn,width=5,height=2,borderwidth = 3,bg = "#eb325b", font=("Times New Roman",10))
+EndTurnButton = Button(root, text="Save\nBoard", command=SaveBoard,width=5,height=2,borderwidth = 3,bg = "#eb325b", font=("Times New Roman",10))
 EndTurnButton.pack(anchor=SW)
 
 def updateButtons():
     if(Mode == 1):
         ModeButton["relief"] = "sunken"
-        ModeButton["text"] = "Attack"
+        ModeButton["text"] = "Create\nDoors"
         ModeButton["bg"] = "#9a1313"
         
     else:
         ModeButton["relief"] = "flat"
-        ModeButton["text"] = "Move"
+        ModeButton["text"] = "Create\nWalls"
         ModeButton["bg"] = "#a9f49f"
     #print(f"Update ran{Mode}")    
     root.after(1000, updateButtons) # run itself again after 1000 ms
@@ -358,11 +301,6 @@ def updateButtons():
 
 # run first time
 updateButtons()
-
-
-
-
-
 
 
 root.mainloop()

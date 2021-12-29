@@ -45,6 +45,8 @@ class entity:
         return self.color
     def printInfo(self):
         print(f"Name: {self.name}, Movement: {self.movement}, Team: {self.team}, Current_pos: {self.location}")
+    def outputInfo(self):
+        return(str(self.id) + " | " + str(self.name)  + " | " + str(self.movement) + " | " + str(self.team) + " | " + str(self.location) + " | ")
 
 
 
@@ -70,6 +72,7 @@ class tile:
         self.coords = []
         self.entity = None
         self.color = "gray"
+        self.walls = 0 #0 means no walls
         
     
     def getEntityColor(self):
@@ -93,7 +96,12 @@ class tile:
         #print(f"ID: {self.id}")
         return self.id
     def printInfo(self):
-        print(f"ID: {self.id}, Color: {self.color}")
+        print(f"ID: {self.id}, Color: {self.color}, Walls: {self.walls}")
+    def outputInfo(self):
+        if (self.entity == None):
+            return(str(self.id) + " | " + str(self.coords) + " | "  + str(self.color) + " | " + str(self.walls)+ " | " + str(self.entity) + "  \n")
+        else:
+            return(str(self.id) + " | " + str(self.coords) + " | "  + str(self.color) + " | " + str(self.walls)+ " | " + str(self.entity.outputInfo()) + "  \n")
 
      
 

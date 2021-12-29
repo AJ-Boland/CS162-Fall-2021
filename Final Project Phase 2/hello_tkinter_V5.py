@@ -10,10 +10,14 @@ turn_value = 0
 player_select = []
 Mode = 0
 maxId = 0
+#importBoard = input("Please input name of the file you want to import")
+importBoard = "defaultBoard"
+#importBoard = ""
 
 """
 Start of the tkinter loop
 """
+
 root = Tk()
 root.geometry("800x700")
 painting = Canvas(root, width = 785, height = 580)
@@ -305,38 +309,101 @@ for line in file_object:
             entity_list.append(Holder)
             maxId = Holder.id
 
-
+def appender(obj,counter,word):
+    print(f"appender counter:{counter}, word: {word}")
+    if(counter == 0):
+        obj.id == int(word)
+    elif(counter == 1):
+        obj.coords == word.split(",")
+    elif(counter == 2):
+        obj.color == word
+    elif(counter == 3):
+        obj.walls == int(word)
+    elif(counter == 4):
+        if(word == "None"):
+            obj.entity = None
+        else:
+            obj.entity = entity(0,0,0,0)
+            obj.entity.id = int(word)
+    elif(counter == 5):
+        obj.entity.name = word
+    elif(counter == 6):
+        obj.entity.movement = int(word)
+    elif(counter == 7):
+        obj.entity.team = word
+    elif(counter == 8):
+        obj.entity.location =  word.split(",")
+    
+        
 
 #load game board
-for j in range(0,19):
-        
-    for i in range(0,26):
-        #
-        board_square = tile()
-        board_square.coords = [x1,y1,x2,y2]
-        board.append(board_square)
+if(importBoard == ""):      
+    for j in range(0,19):
+            
+        for i in range(0,26):
+            #
+            board_square = tile()
+            board_square.coords = [x1,y1,x2,y2]
+            board.append(board_square)
 
-        for creature in entity_list:            
-            if(i == (creature.location[0] - 1) and j == (creature.location[1] - 1)):
-                #print(f"Tile infested: {board_square.getID()}")
-                #print(f"Conditional: {(creature.location[0] - 1)}, {(creature.location[1] - 1)}")
-                board_square.entity = creature
-                board_square.color = board_square.getEntityColor()
+            for creature in entity_list:            
+                if(i == (creature.location[0] - 1) and j == (creature.location[1] - 1)):
+                    #print(f"Tile infested: {board_square.getID()}")
+                    #print(f"Conditional: {(creature.location[0] - 1)}, {(creature.location[1] - 1)}")
+                    board_square.entity = creature
+                    board_square.color = board_square.getEntityColor()
+                else:
+                    pass
             else:
-                pass
-        else:
-            painting.create_rectangle(x1,y1,x2,y2,fill=board_square.color) 
+                painting.create_rectangle(x1,y1,x2,y2,fill=board_square.color) 
+            
+            
         
-        
-       
-        x1 = x1 + 30
-        x2 = x2 + 30
-        
+            x1 = x1 + 30
+            x2 = x2 + 30
+            
 
-    y1 = y1 + 30
-    y2 = y2 + 30 
-    x1 = 5
-    x2 = 35
+        y1 = y1 + 30
+        y2 = y2 + 30 
+        x1 = 5
+        x2 = 35
+else:
+    board_square = tile()
+    strholder = ""
+    counter = 0
+    with open(importBoard) as textFile:
+        while True:
+            c = textFile.read(1)
+            if(c == "|"):
+                appender(board_square,counter,strholder)
+                counter +=1
+                strholder = ""
+            else:
+                strholder = strholder + c
+
+    """boardFile = open(importBoard)
+    
+    for line in boardFile:
+        print(f"Current Line: {line}")
+        counter = 0
+        board_square = tile()
+        strholder = ""
+        str3 = str()
+        for word in line:
+            print(f"word: {word} strholder: {str3}")
+            if(word == "|"):
+                appender(board_square,counter,str3)
+                strholder = ""
+                counter +=1
+            else:
+                if(word == "[" or "]"):
+                    pass
+                else:
+                    str3 = "".join[strholder,word]
+                    #strholder = strholder + word
+                """
+
+
 
 
 #button stuff
@@ -355,7 +422,7 @@ def updateButtons():
         ModeButton["relief"] = "flat"
         ModeButton["text"] = "Move"
         ModeButton["bg"] = "#a9f49f"
-    print(f"Update ran{Mode}")    
+   # print(f"Update ran{Mode}")    
     root.after(1000, updateButtons) # run itself again after 1000 ms
 
 
